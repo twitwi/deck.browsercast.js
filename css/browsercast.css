@@ -1,0 +1,10 @@
+#browsercast {
+	position: absolute;
+	top: 5px; left: 5px;
+	width: 100%;
+}
+
+#browsercast-audio {
+	width: 100%;
+	margin: auto auto;
+}
