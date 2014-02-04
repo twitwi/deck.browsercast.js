@@ -4,49 +4,118 @@
     // TODO have a way of starting record-mode.
     playBrowserCast();
 
-    // Use the audio timeupdates to drive existing slides.
-    function playBrowserCast() {
-        var slides, audio, slideCues, i, cue;
+    function SlideCue(time, slideIndex) {
+        this.time = time;
+        this.slideIndex = slideIndex;
+    }
 
+    SlideCue.prototype.focus = function () {
+        Reveal.navigateTo(this.slideIndex);
+    };
+
+    function FragmentCue(time, slideIndex, fragmentIndex) {
+        this.time = time;
+        this.slideIndex = slideIndex;
+        this.fragmentIndex = fragmentIndex;
+    }
+
+    FragmentCue.prototype.focus = function () {
+        var slide, slideFragments, targetFragment;
+        slide = Reveal.getSlide(this.slideIndex);
+        if (Reveal.getIndices()['h'] !== this.slideIndex) {
+            Reveal.slide(this.slideIndex);
+        }
+        slideFragments = slide.getElementsByClassName('fragment');
+        targetFragment = slideFragments[this.fragmentIndex];
+        targetFragment.classList.add("visible");
+        targetFragment.classList.add("current-fragment");
+    };
+
+    function getSectionFragmentCues(section, slideIndex) {
+        var fragmentTags, fragmentTag, cue, cueTime, fragmentCues, i;
+        fragmentTags = section.getElementsByClassName('fragment');
+
+        fragmentCues = [];
+        for (i = 0; i < fragmentTags.length; i += 1) {
+            fragmentTag = fragmentTags[i];
+            cueTime = parseCueTime(fragmentTag);
+            cue = new FragmentCue(
+                cueTime,
+                slideIndex,
+                i
+            );
+            fragmentCues.push(cue);
+        }
+        return fragmentCues;
+    }
+
+    function parseCueTime(tag) {
+        return parseFloat(tag.attributes['data-bccue'].value);
+    }
+
+    function getSlideCues() {
+        var slides, slideCues, cue, cueTime, subCues;
         // Get a list of the slides and their cue times.
         slides = document.getElementsByTagName('section');
         slideCues = [];
         for (i = 0; i < slides.length; i += 1) {
             if (typeof slides[i].attributes['data-bccue'] !== 'undefined') {
-                cue = [parseFloat(slides[i].attributes['data-bccue'].value), i];
+                cueTime = parseCueTime(slides[i]);
+                cue = new SlideCue(cueTime, i);
                 slideCues.push(cue);
+                subCues = getSectionFragmentCues(slides[i], i);
+                slideCues = slideCues.concat(subCues);
             }
         }
+        return slideCues;
+    }
+
+    // Use the audio timeupdates to drive existing slides.
+    function playBrowserCast() {
+        var audio, slideCues;
+
+        slideCues = getSlideCues();
 
         // Look for the browsercast audio element.
         audio = document.getElementById('browsercast-audio');
 
+        // lock for preventing slidechanged event handler during timeupdate handler.
+        // TODO using a mutex seems clunky.
+        var transitionLock = false;
+
         // When the time updates, see if it's a good time to navigate.
         audio.addEventListener('timeupdate', function () {
-            var time, i, validCues = [], lastValidCue;
+            var time, i, validCues = [], lastValidCue, curCue, done;
             time = this.currentTime;
-            for (i = 0; i < slideCues.length; i++) {
-                if (slideCues[i][0] <= time) {
-                    validCues.push(slideCues[i]);
+            done = false;
+            for (i = 0; i < slideCues.length && !done; i++) {
+                curCue = slideCues[slideCues.length - 1 - i];
+                if (curCue.time <= time) {
+                    transitionLock = true;
+                    curCue.focus();
+                    done = true;
+                    transitionLock = false;
                 }
-            }
-            lastValidCue = validCues[validCues.length-1];
-            if (typeof lastValidCue !== 'undefined') {
-                Reveal.navigateTo(lastValidCue[1]);
             }
         });
 
-        // TODO this shouldn't run if the timeupdate handler is changing
-        // the slide; otherwise we're constantly seeking in the audio
-        // for no good reason.
         Reveal.addEventListener('slidechanged', function (event) {
             var cueTimeRaw, cueTime, indexh, newSlide;
+            if (transitionLock) {
+                // If this slidechanged event was caused by the timeupdate event,
+                // don't seek in the audio; an unnecessary stutter will occur otherwise.
+                return;
+            }
+
             // For some reason event.currentSlide refers to the slide we just left instead of the one we're navigating to.
             indexh = event.indexh;
+
+            // Extract the desired audio time from the target slide and seek to that time.
             newSlide = Reveal.getSlide(indexh);
-            cueTimeRaw = newSlide.attributes['data-bccue'].value;
-            cueTime = parseFloat(cueTimeRaw);
+            cueTime = parseCueTime(newSlide);
             audio.currentTime = cueTime;
+
+            // If the slide changed after the 'cast finished, get the audio moving again.
             audio.play();
         });
 
