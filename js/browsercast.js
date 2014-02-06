@@ -86,7 +86,6 @@
         slideCues.forEach(function (cue) {
             popcorn.cue(i++, cue.time, function () {
                 transitionLock = true;
-                console.log(cue);
                 cue.focus();
                 transitionLock = false;
             });
