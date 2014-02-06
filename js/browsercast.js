@@ -2,15 +2,16 @@
 (function () {
 
     // TODO have a way of starting record-mode.
-    playBrowserCast();
 
     function SlideCue(time, slideIndex) {
         this.time = time;
         this.slideIndex = slideIndex;
     }
 
-    SlideCue.prototype.focus = function () {
-        Reveal.navigateTo(this.slideIndex);
+    SlideCue.prototype = {
+        focus: function () {
+            Reveal.slide(this.slideIndex);
+        }
     };
 
     function FragmentCue(time, slideIndex, fragmentIndex) {
@@ -72,32 +73,28 @@
 
     // Use the audio timeupdates to drive existing slides.
     function playBrowserCast() {
-        var audio, slideCues;
+        var audio, slideCues, popcorn;
 
         slideCues = getSlideCues();
 
         // Look for the browsercast audio element.
         audio = document.getElementById('browsercast-audio');
 
+        popcorn = Popcorn(audio);
+
+        var i = 0;
+        slideCues.forEach(function (cue) {
+            popcorn.cue(i++, cue.time, function () {
+                transitionLock = true;
+                console.log(cue);
+                cue.focus();
+                transitionLock = false;
+            });
+        });
+
         // lock for preventing slidechanged event handler during timeupdate handler.
         // TODO using a mutex seems clunky.
         var transitionLock = false;
-
-        // When the time updates, see if it's a good time to navigate.
-        audio.addEventListener('timeupdate', function () {
-            var time, i, validCues = [], lastValidCue, curCue, done;
-            time = this.currentTime;
-            done = false;
-            for (i = 0; i < slideCues.length && !done; i++) {
-                curCue = slideCues[slideCues.length - 1 - i];
-                if (curCue.time <= time) {
-                    transitionLock = true;
-                    curCue.focus();
-                    done = true;
-                    transitionLock = false;
-                }
-            }
-        });
 
         Reveal.addEventListener('slidechanged', function (event) {
             var cueTimeRaw, cueTime, indexh, newSlide;
@@ -113,7 +110,7 @@
             // Extract the desired audio time from the target slide and seek to that time.
             newSlide = Reveal.getSlide(indexh);
             cueTime = parseCueTime(newSlide);
-            audio.currentTime = cueTime;
+            popcorn.currentTime(cueTime);
 
             // If the slide changed after the 'cast finished, get the audio moving again.
             audio.play();
@@ -173,4 +170,5 @@
         });
     }
 
+    playBrowserCast();
 })();
