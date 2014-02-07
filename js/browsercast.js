@@ -1,7 +1,25 @@
 // Sketch of browsercast / revealjs integration.
-(function () {
+(function (global, document) {
 
-    // TODO have a way of starting record-mode.
+
+	/**
+     * [from revealjs]
+	 * Extend object a with the properties of object b.
+	 * If there's a conflict, object b takes precedence.
+	 */
+	function extend(a, b) {
+		for (var i in b) {
+			a[i] = b[i];
+		}
+	}
+
+	/**
+     * [from revealjs]
+	 * Converts the target object to an array.
+	 */
+	function toArray( o ) {
+		return Array.prototype.slice.call( o );
+	}
 
     function SlideCue(time, slideIndex) {
         this.time = time;
@@ -21,15 +39,14 @@
     }
 
     FragmentCue.prototype.focus = function () {
-        var slide, slideFragments, targetFragment;
+        var slide, slideFragments, indexv = 0;
         slide = Reveal.getSlide(this.slideIndex);
         if (Reveal.getIndices()['h'] !== this.slideIndex) {
             Reveal.slide(this.slideIndex);
         }
         slideFragments = slide.getElementsByClassName('fragment');
-        targetFragment = slideFragments[this.fragmentIndex];
-        targetFragment.classList.add("visible");
-        targetFragment.classList.add("current-fragment");
+
+        Reveal.slide(this.slideIndex, indexv, this.fragmentIndex);
     };
 
     function getSectionFragmentCues(section, slideIndex) {
@@ -95,13 +112,18 @@
         // TODO using a mutex seems clunky.
         var transitionLock = false;
 
-        Reveal.addEventListener('slidechanged', function (event) {
-            var cueTimeRaw, cueTime, indexh, newSlide;
-            if (transitionLock) {
-                // If this slidechanged event was caused by the timeupdate event,
-                // don't seek in the audio; an unnecessary stutter will occur otherwise.
-                return;
-            }
+        // Decorator for creating an event handler that doesn't run
+        // when the lock is active.
+        var ifNotLocked = function (f) {
+            return function (event) {
+                if (!transitionLock) {
+                    f(event);
+                }
+            };
+        };
+
+        Reveal.addEventListener('slidechanged', ifNotLocked(function (event) {
+            var cueTimeRaw, cueTime, indexh, newSlide, i, frags;
 
             // For some reason event.currentSlide refers to the slide we just left instead of the one we're navigating to.
             indexh = event.indexh;
@@ -111,12 +133,48 @@
             cueTime = parseCueTime(newSlide);
             popcorn.currentTime(cueTime);
 
+            frags = newSlide.getElementsByClassName('fragment');
+            toArray(frags).forEach(function (frag) {
+                frag.classList.remove('visible');
+                frag.classList.remove('current-fragment');
+            });
+
             // If the slide changed after the 'cast finished, get the audio moving again.
             audio.play();
+        }));
+
+        var fragmentHandler = ifNotLocked(function (event) {
+            var indices, cs, targetFrag;
+            indices = Reveal.getIndices();
+
+            if (indices['f'] === -1) {
+                popcorn.currentTime(parseCueTime(Reveal.getSlide(indices['h'])));
+            } else {
+                cs = Reveal.getCurrentSlide();
+                targetFrag = cs.querySelector('[data-fragment-index="' + indices['f'] + '"]');
+                popcorn.currentTime(parseCueTime(targetFrag));
+            }
         });
+
+        Reveal.addEventListener('fragmenthidden', fragmentHandler);
+
+        Reveal.addEventListener('fragmentshown', fragmentHandler);
 
         // Start the 'cast!
         audio.play();
+
+        // Bind space to pause/play instead of the Reveal.js default.
+        Reveal.configure({
+            keyboard: {
+                32: function () {
+                    if (popcorn.paused() === true) {
+                        popcorn.play()
+                    } else {
+                        popcorn.pause()
+                    }
+                }
+            }
+        });
     }
 
     // Start recording a 'cast
@@ -159,7 +217,7 @@
         }
 
         var tracker = new CuePointTracker();
-        window.browsercastRecorder = tracker;
+        global.browsercastRecorder = tracker;
 
         document.addEventListener('keydown', function (event) {
             if (event.keyIdentifier === 'Left' || event.keyIdentifier === 'Right') {
@@ -170,4 +228,4 @@
     }
 
     playBrowserCast();
-})();
+})(window, window.document);
