@@ -8,3 +8,21 @@
 	width: 100%;
 	margin: auto auto;
 }
+
+#markers {
+	width: 100%;
+	height: 10px;
+	background-color: #e3e3e3;
+}
+
+.cue {
+	position: relative;
+	float: left;
+	height: 10px;
+	border-right: solid 2px #000;
+	cursor: pointer;
+}
+
+.active {
+	background-color: #abc;
+}

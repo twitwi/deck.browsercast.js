@@ -88,25 +88,57 @@
         return slideCues;
     }
 
+    function setCueLength() {
+        var markers, markerLength, divs, slideCues, borderWidth;
+        slideCues = getSlideCues();
+        markers = document.getElementById('markers');
+        borderWidth = 2;
+        markerLength = markers.offsetWidth / slideCues.length - borderWidth;
+        divs = document.getElementsByClassName('cue');
+        for (var i = 0; i < divs.length; i++) {
+            divs[i].setAttribute("style","width:" + markerLength + "px");
+        };
+    }
+
+    function onCueClick(cue, popcorn) {
+       popcorn.currentTime(cue.time);
+    }
+
     // Use the audio timeupdates to drive existing slides.
     function playBrowserCast() {
-        var audio, slideCues, popcorn;
+        var audio, slideCues, popcorn, markers, div;
 
         slideCues = getSlideCues();
 
         // Look for the browsercast audio element.
         audio = document.getElementById('browsercast-audio');
+        markers = document.getElementById('markers');
 
         popcorn = Popcorn(audio);
 
         var i = 0;
         slideCues.forEach(function (cue) {
+            div = document.createElement('div');
+            div.className = 'cue';
+            div.setAttribute('data', "time:"+cue.time);
+            cue.div = div;
+            div.onclick = function(event) {
+                        return onCueClick.call(this, cue, popcorn);
+                    };
+            markers.appendChild(div);
+
             popcorn.cue(i++, cue.time, function () {
                 transitionLock = true;
                 cue.focus();
+                var active = document.querySelector(".active");
+                if (active != null) active.classList.remove("active");
+                cue.div.classList.add("active");
                 transitionLock = false;
             });
         });
+        setCueLength();
+
+        window.onresize = setCueLength;
 
         // lock for preventing slidechanged event handler during timeupdate handler.
         // TODO using a mutex seems clunky.
