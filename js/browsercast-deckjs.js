@@ -1,7 +1,8 @@
 // Sketch of browsercast / revealjs integration.
-(function (global, document) {
+(function (global, document, $, deck, window, undefined) {
 
-
+    var $document = $(document);
+    
 	/**
      * [from revealjs]
 	 * Extend object a with the properties of object b.
@@ -28,61 +29,24 @@
 
     SlideCue.prototype = {
         focus: function () {
-            Reveal.slide(this.slideIndex);
+            $.deck('go', this.slideIndex);
         }
     };
-
-    function FragmentCue(time, slideIndex, fragmentIndex) {
-        this.time = time;
-        this.slideIndex = slideIndex;
-        this.fragmentIndex = fragmentIndex;
-    }
-
-    FragmentCue.prototype.focus = function () {
-        var slide, slideFragments, indexv = 0;
-        slide = Reveal.getSlide(this.slideIndex);
-        if (Reveal.getIndices()['h'] !== this.slideIndex) {
-            Reveal.slide(this.slideIndex);
-        }
-        slideFragments = slide.getElementsByClassName('fragment');
-
-        Reveal.slide(this.slideIndex, indexv, this.fragmentIndex);
-    };
-
-    function getSectionFragmentCues(section, slideIndex) {
-        var fragmentTags, fragmentTag, cue, cueTime, fragmentCues, i;
-        fragmentTags = section.getElementsByClassName('fragment');
-
-        fragmentCues = [];
-        for (i = 0; i < fragmentTags.length; i += 1) {
-            fragmentTag = fragmentTags[i];
-            cueTime = parseCueTime(fragmentTag);
-            cue = new FragmentCue(
-                cueTime,
-                slideIndex,
-                i
-            );
-            fragmentCues.push(cue);
-        }
-        return fragmentCues;
-    }
 
     function parseCueTime(tag) {
-        return parseFloat(tag.attributes['data-bccue'].value);
+        return parseFloat($(tag).attr('data-bccue'));
     }
 
     function getSlideCues() {
         var slides, slideCues, cue, cueTime, subCues;
-        // Get a list of the slides and their cue times.
-        slides = document.getElementsByTagName('section');
+        // Get a list of the slides and their cue tnimes.
+        slides = $.deck('getSlides');
         slideCues = [];
         for (i = 0; i < slides.length; i += 1) {
-            if (typeof slides[i].attributes['data-bccue'] !== 'undefined') {
+            if (typeof slides[i].attr('data-bccue') !== 'undefined') {
                 cueTime = parseCueTime(slides[i]);
                 cue = new SlideCue(cueTime, i);
                 slideCues.push(cue);
-                subCues = getSectionFragmentCues(slides[i], i);
-                slideCues = slideCues.concat(subCues);
             }
         }
         return slideCues;
@@ -149,52 +113,29 @@
         var ifNotLocked = function (f) {
             return function (event) {
                 if (!transitionLock) {
-                    f(event);
+                    f.apply(this, arguments);
                 }
             };
         };
 
-        Reveal.addEventListener('slidechanged', ifNotLocked(function (event) {
-            var cueTimeRaw, cueTime, indexh, newSlide, i, frags;
-
-            // For some reason event.currentSlide refers to the slide we just left instead of the one we're navigating to.
-            indexh = event.indexh;
+        $document.bind('deck.change', ifNotLocked(function (event, from, to) {
+            var cueTimeRaw, cueTime, newSlide, i, frags;
 
             // Extract the desired audio time from the target slide and seek to that time.
-            newSlide = Reveal.getSlide(indexh);
-            cueTime = parseCueTime(newSlide);
-            popcorn.currentTime(cueTime);
-
-            frags = newSlide.getElementsByClassName('fragment');
-            toArray(frags).forEach(function (frag) {
-                frag.classList.remove('visible');
-                frag.classList.remove('current-fragment');
-            });
+            newSlide = $.deck('getSlide', to); //Reveal.getSlide(indexh);
+            if (typeof newSlide.attr('data-bccue') !== 'undefined') {
+                cueTime = parseCueTime(newSlide);
+                popcorn.currentTime(cueTime);
+            }
 
             // If the slide changed after the 'cast finished, get the audio moving again.
             audio.play();
         }));
 
-        var fragmentHandler = ifNotLocked(function (event) {
-            var indices, cs, targetFrag;
-            indices = Reveal.getIndices();
-
-            if (indices['f'] === -1) {
-                popcorn.currentTime(parseCueTime(Reveal.getSlide(indices['h'])));
-            } else {
-                cs = Reveal.getCurrentSlide();
-                targetFrag = cs.querySelector('[data-fragment-index="' + indices['f'] + '"]');
-                popcorn.currentTime(parseCueTime(targetFrag));
-            }
-        });
-
-        Reveal.addEventListener('fragmenthidden', fragmentHandler);
-
-        Reveal.addEventListener('fragmentshown', fragmentHandler);
-
         // Start the 'cast!
         audio.play();
 
+        /* TODO
         // Bind space to pause/play instead of the Reveal.js default.
         Reveal.configure({
             keyboard: {
@@ -207,8 +148,10 @@
                 }
             }
         });
+        */
     }
 
+    /* TODO?
     // Start recording a 'cast
     // In the end you can get the slide HTML with the cue attributes set
     // by running:
@@ -258,6 +201,10 @@
             }
         });
     }
+    */
 
-    playBrowserCast();
-})(window, window.document);
+    $document.bind('deck.init', function() {
+        playBrowserCast();
+    });
+
+})(window, window.document, jQuery, 'deck', this);
