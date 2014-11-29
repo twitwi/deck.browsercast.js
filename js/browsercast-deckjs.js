@@ -2,25 +2,6 @@
 (function (global, document, $, deck, window, undefined) {
 
     var $document = $(document);
-    
-	/**
-     * [from revealjs]
-	 * Extend object a with the properties of object b.
-	 * If there's a conflict, object b takes precedence.
-	 */
-	function extend(a, b) {
-		for (var i in b) {
-			a[i] = b[i];
-		}
-	}
-
-	/**
-     * [from revealjs]
-	 * Converts the target object to an array.
-	 */
-	function toArray( o ) {
-		return Array.prototype.slice.call( o );
-	}
 
     function SlideCue(time, slideIndex) {
         this.time = time;
