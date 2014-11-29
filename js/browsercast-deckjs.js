@@ -115,21 +115,19 @@
 
         // Start the 'cast!
         audio.play();
-
-        /* TODO
-        // Bind space to pause/play instead of the Reveal.js default.
-        Reveal.configure({
-            keyboard: {
-                32: function () {
-                    if (popcorn.paused() === true) {
-                        popcorn.play()
-                    } else {
-                        popcorn.pause()
-                    }
+        
+        $document.unbind('keydown.deckbcast').bind('keydown.deckbcast', function(e) {
+            //opts.keys.scale || $.inArray(e.which, opts.keys.scale) > -1) {
+            if (e.which === 32) {
+                if (popcorn.paused() === true) {
+                    popcorn.play()
+                } else {
+                    popcorn.pause()
                 }
+                e.preventDefault();
             }
         });
-        */
+
     }
 
     /* TODO?
@@ -183,6 +181,22 @@
         });
     }
     */
+
+    function unsetKey(which, fromWhat) {
+        if ($.isArray(fromWhat)) {
+            var match = -1;
+            while( (match = fromWhat.indexOf(which)) > -1 ) {
+                fromWhat.splice(match, 1);
+            }
+        } else if ($.isPlainObject(fromWhat)) {
+            for (var p in fromWhat) {
+                if (fromWhat.hasOwnProperty(p)) {
+                    unsetKey(which, fromWhat[p]);
+                }
+            }
+        }
+    }
+    unsetKey(32, $.deck.defaults.keys); // unbind space from "next slide"
 
     $document.bind('deck.init', function() {
         playBrowserCast();
