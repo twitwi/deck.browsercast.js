@@ -23,6 +23,10 @@
 	cursor: pointer;
 }
 
+.cue:last-child {
+    border-right: 0;
+}
+
 .active {
 	background-color: #abc;
 }
