@@ -14,6 +14,7 @@
     <script src="deckjs-custom.js"></script>
     <script>
         includedeck(["theme.css",
+          "player.css",
           "../css/browsercast.css",
           "../lib/js/head.min.js",
           "../js/popcorn.js",
@@ -161,11 +162,16 @@
     </div>
     
     <div id="browsercast">
-      <audio controls id="browsercast-audio">
+      <audio id="browsercast-audio">
         <source src="test-02.ogg" type="audio/ogg">
           Your browser does not support the audio element.
       </audio>
-      <div id="markers"></div>
+      <menu>
+          <button class="playpause"></button>
+      </menu>
+      <div id="markers" class="new">
+          <div class="time-label">1:00</div>
+      </div>
     </div>
     
   </body>

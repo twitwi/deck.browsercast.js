@@ -37,6 +37,31 @@
         return popcorn.duration();
     }
 
+    function togglePlay(popcorn) {
+        if (popcorn.paused() === true) {
+            popcorn.play()
+        } else {
+            popcorn.pause()
+        }
+    }
+
+    function timeString(nSeconds) {
+        return new Date(null, null, null, null, null, nSeconds)
+            .toTimeString()
+            .replace(/ .*$/, '')
+            .replace(/^00:/, '');
+    }
+
+    function updatePlayPauseClass(paused, that, ifPlay, ifPause) {
+        if (paused == true) {
+            $(that).removeClass(ifPlay);
+            $(that).addClass(ifPause);
+        } else {
+            $(that).removeClass(ifPause);
+            $(that).addClass(ifPlay);
+        }
+    }
+
     function setCueLength(slideCues, totalDuration) {
         var markers, markerLength, divs;
         markers = document.getElementById('markers');
@@ -55,15 +80,20 @@
 
     // Use the audio timeupdates to drive existing slides.
     function playBrowserCast() {
-        var audio, slideCues, popcorn, markers, div;
+        var audio, slideCues, popcorn, markers, div, bc;
 
         slideCues = getSlideCues();
+        bc = document.getElementById('browsercast');
 
         // Look for the browsercast audio element.
         audio = document.getElementById('browsercast-audio');
         markers = document.getElementById('markers');
 
         popcorn = Popcorn(audio);
+
+        $(".playpause", bc).click(function() {
+            togglePlay(popcorn);
+        });
 
         var i = 0;
         slideCues.forEach(function (cue) {
@@ -115,17 +145,28 @@
             audio.play();
         }));
 
+
+        var updatePlayPause = function() {
+            $('.playpause').each(function() {
+                updatePlayPauseClass(popcorn.paused(), this, 'pause', 'play');
+            });
+        };
+        audio.addEventListener('pause', updatePlayPause);
+        audio.addEventListener('playing', updatePlayPause);
+        audio.addEventListener('timeupdate', function () {
+            var estimatedTotal = estimateTotalDuration(popcorn);
+            var pc = 100 * audio.currentTime / estimatedTotal;
+            var timeTxt = timeString(audio.currentTime);
+            $('.time-label').css("left", pc+'%').text(timeTxt);
+        });
+
         // Start the 'cast!
         audio.play();
         
         $document.unbind('keydown.deckbcast').bind('keydown.deckbcast', function(e) {
             //opts.keys.scale || $.inArray(e.which, opts.keys.scale) > -1) {
             if (e.which === 32) {
-                if (popcorn.paused() === true) {
-                    popcorn.play()
-                } else {
-                    popcorn.pause()
-                }
+                togglePlay(popcorn);
                 e.preventDefault();
             }
         });

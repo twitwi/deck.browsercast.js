@@ -1,0 +1,405 @@
+menu {
+  /* @size sets the relative size of the buttons, define before calling the buttons mixin */
+  /* Play */
+  /* Stop */
+  /* Fast-Forward */
+  /* Rewind */
+  /* Pause */
+  margin: 2em auto;
+  text-align: center;
+  position: relative;
+}
+menu button {
+  position: relative;
+  display: inline-block;
+  padding: .6em;
+  background: linear-gradient(#ffffff, #cccccc), #c9c5c9;
+  border-radius: 10em;
+  border: 0 solid #d0d0d0;
+  width: 3em;
+  height: 3em;
+  margin-right: 20px;
+  box-shadow: 0 0.18em 0.21em rgba(0, 0, 0, 0.4);
+}
+menu button:hover {
+  background: linear-gradient(#f5f5f5, #b9b9b9), #c9c5c9;
+}
+menu button:before,
+menu button:after {
+  position: absolute;
+  content: " ";
+}
+menu button:active {
+  top: 0.15em;
+  box-shadow: 0 0.06em 0.09em rgba(0, 0, 0, 0.4);
+}
+menu .play:before {
+  z-index: 2;
+  top: 0.66em;
+  left: 1.08em;
+  width: 0;
+  height: 0;
+  border: 0.9em solid transparent;
+  border-left-color: rgba(100, 100, 100, 0.8);
+  border-left-width: 1.35em;
+}
+menu .play:hover:before {
+  border-left-color: rgba(36, 36, 36, 0.8);
+}
+menu .stop:before {
+  top: 0.84em;
+  left: 0.84em;
+  width: 1.41em;
+  height: 1.41em;
+  background: rgba(100, 100, 100, 0.8);
+}
+menu .stop:hover:before {
+  background: rgba(36, 36, 36, 0.8);
+}
+menu .ff:before,
+menu .ff:after {
+  width: 0;
+  height: 0;
+  top: 0.78em;
+  border: 0.75em solid transparent;
+  border-left-color: rgba(100, 100, 100, 0.8);
+  border-left-width: 0.81em;
+}
+menu .ff:before {
+  left: 0.9em;
+}
+menu .ff:after {
+  left: 1.698em;
+  content: " ";
+}
+menu .ff:hover:before,
+menu .ff:hover:after {
+  border-left-color: rgba(36, 36, 36, 0.8);
+}
+menu .rw:before,
+menu .rw:after {
+  width: 0;
+  height: 0;
+  top: 0.78em;
+  border: 0.75em solid transparent;
+  border-right-color: rgba(100, 100, 100, 0.8);
+  border-right-width: 0.81em;
+}
+menu .rw:before {
+  left: 0.66em;
+}
+menu .rw:after {
+  left: -0.15em;
+  content: " ";
+}
+menu .rw:hover:after,
+menu .rw:hover:before {
+  border-right-color: rgba(36, 36, 36, 0.8);
+}
+menu .pause:before,
+menu .pause:after {
+  height: 1.41em;
+  width: 0.57em;
+  left: 0.87em;
+  top: 0.84em;
+  display: block;
+  background-color: rgba(100, 100, 100, 0.8);
+}
+menu .pause:after {
+  left: 1.62em;
+}
+menu .pause:hover:before,
+menu .pause:hover:after {
+  background-color: rgba(36, 36, 36, 0.8);
+}
+menu.medium {
+  /* Play */
+  /* Stop */
+  /* Fast-Forward */
+  /* Rewind */
+  /* Pause */
+}
+menu.medium button {
+  position: relative;
+  display: inline-block;
+  padding: .6em;
+  background: linear-gradient(#ffffff, #cccccc), #c9c5c9;
+  border-radius: 10em;
+  border: 0 solid #d0d0d0;
+  width: 5em;
+  height: 5em;
+  margin-right: 20px;
+  box-shadow: 0 0.3em 0.35em rgba(0, 0, 0, 0.4);
+}
+menu.medium button:hover {
+  background: linear-gradient(#f5f5f5, #b9b9b9), #c9c5c9;
+}
+menu.medium button:before,
+menu.medium button:after {
+  position: absolute;
+  content: " ";
+}
+menu.medium button:active {
+  top: 0.25em;
+  box-shadow: 0 0.1em 0.15em rgba(0, 0, 0, 0.4);
+}
+menu.medium .play:before {
+  z-index: 2;
+  top: 1.1em;
+  left: 1.8em;
+  width: 0;
+  height: 0;
+  border: 1.5em solid transparent;
+  border-left-color: rgba(100, 100, 100, 0.8);
+  border-left-width: 2.25em;
+}
+menu.medium .play:hover:before {
+  border-left-color: rgba(36, 36, 36, 0.8);
+}
+menu.medium .stop:before {
+  top: 1.4em;
+  left: 1.4em;
+  width: 2.35em;
+  height: 2.35em;
+  background: rgba(100, 100, 100, 0.8);
+}
+menu.medium .stop:hover:before {
+  background: rgba(36, 36, 36, 0.8);
+}
+menu.medium .ff:before,
+menu.medium .ff:after {
+  width: 0;
+  height: 0;
+  top: 1.3em;
+  border: 1.25em solid transparent;
+  border-left-color: rgba(100, 100, 100, 0.8);
+  border-left-width: 1.35em;
+}
+menu.medium .ff:before {
+  left: 1.5em;
+}
+menu.medium .ff:after {
+  left: 2.83em;
+  content: " ";
+}
+menu.medium .ff:hover:before,
+menu.medium .ff:hover:after {
+  border-left-color: rgba(36, 36, 36, 0.8);
+}
+menu.medium .rw:before,
+menu.medium .rw:after {
+  width: 0;
+  height: 0;
+  top: 1.3em;
+  border: 1.25em solid transparent;
+  border-right-color: rgba(100, 100, 100, 0.8);
+  border-right-width: 1.35em;
+}
+menu.medium .rw:before {
+  left: 1.1em;
+}
+menu.medium .rw:after {
+  left: -0.25em;
+  content: " ";
+}
+menu.medium .rw:hover:after,
+menu.medium .rw:hover:before {
+  border-right-color: rgba(36, 36, 36, 0.8);
+}
+menu.medium .pause:before,
+menu.medium .pause:after {
+  height: 2.35em;
+  width: 0.95em;
+  left: 1.45em;
+  top: 1.4em;
+  display: block;
+  background-color: rgba(100, 100, 100, 0.8);
+}
+menu.medium .pause:after {
+  left: 2.7em;
+}
+menu.medium .pause:hover:before,
+menu.medium .pause:hover:after {
+  background-color: rgba(36, 36, 36, 0.8);
+}
+menu.small {
+  /* Play */
+  /* Stop */
+  /* Fast-Forward */
+  /* Rewind */
+  /* Pause */
+}
+menu.small button {
+  position: relative;
+  display: inline-block;
+  padding: .6em;
+  background: linear-gradient(#ffffff, #cccccc), #c9c5c9;
+  border-radius: 10em;
+  border: 0 solid #d0d0d0;
+  width: 3em;
+  height: 3em;
+  margin-right: 20px;
+  box-shadow: 0 0.18em 0.21em rgba(0, 0, 0, 0.4);
+}
+menu.small button:hover {
+  background: linear-gradient(#f5f5f5, #b9b9b9), #c9c5c9;
+}
+menu.small button:before,
+menu.small button:after {
+  position: absolute;
+  content: " ";
+}
+menu.small button:active {
+  top: 0.15em;
+  box-shadow: 0 0.06em 0.09em rgba(0, 0, 0, 0.4);
+}
+menu.small .play:before {
+  z-index: 2;
+  top: 0.66em;
+  left: 1.08em;
+  width: 0;
+  height: 0;
+  border: 0.9em solid transparent;
+  border-left-color: rgba(100, 100, 100, 0.8);
+  border-left-width: 1.35em;
+}
+menu.small .play:hover:before {
+  border-left-color: rgba(36, 36, 36, 0.8);
+}
+menu.small .stop:before {
+  top: 0.84em;
+  left: 0.84em;
+  width: 1.41em;
+  height: 1.41em;
+  background: rgba(100, 100, 100, 0.8);
+}
+menu.small .stop:hover:before {
+  background: rgba(36, 36, 36, 0.8);
+}
+menu.small .ff:before,
+menu.small .ff:after {
+  width: 0;
+  height: 0;
+  top: 0.78em;
+  border: 0.75em solid transparent;
+  border-left-color: rgba(100, 100, 100, 0.8);
+  border-left-width: 0.81em;
+}
+menu.small .ff:before {
+  left: 0.9em;
+}
+menu.small .ff:after {
+  left: 1.698em;
+  content: " ";
+}
+menu.small .ff:hover:before,
+menu.small .ff:hover:after {
+  border-left-color: rgba(36, 36, 36, 0.8);
+}
+menu.small .rw:before,
+menu.small .rw:after {
+  width: 0;
+  height: 0;
+  top: 0.78em;
+  border: 0.75em solid transparent;
+  border-right-color: rgba(100, 100, 100, 0.8);
+  border-right-width: 0.81em;
+}
+menu.small .rw:before {
+  left: 0.66em;
+}
+menu.small .rw:after {
+  left: -0.15em;
+  content: " ";
+}
+menu.small .rw:hover:after,
+menu.small .rw:hover:before {
+  border-right-color: rgba(36, 36, 36, 0.8);
+}
+menu.small .pause:before,
+menu.small .pause:after {
+  height: 1.41em;
+  width: 0.57em;
+  left: 0.87em;
+  top: 0.84em;
+  display: block;
+  background-color: rgba(100, 100, 100, 0.8);
+}
+menu.small .pause:after {
+  left: 1.62em;
+}
+menu.small .pause:hover:before,
+menu.small .pause:hover:after {
+  background-color: rgba(36, 36, 36, 0.8);
+}
+/*
+The buttons mixin that defines the buttons styles, the @size must be defined to set the relative size
+*/
+/*
+Other Styles
+*/
+body {
+  background: #c1c1c1;
+}
+
+
+
+
+/* ///////////////////////////////// */
+
+
+.time-label {
+    z-index: 1;
+    background-color: grey;
+    font-family: lato;
+    color: #DDD;
+    text-shadow: #555 1px 1px 1px;
+    padding: 0 5px;
+    border-radius: 2px;
+    /*
+      height: 100px;
+      width: 100px;
+      */
+    font-size: 10px;
+    display: inline-block;
+    position: absolute;
+    left: 0%;
+    transition: left 200ms linear;
+    top: -17px;
+    transform: translate(-50%, 0) translate(-3px, 0);
+}
+.time-label:after {
+    content: ' ';
+    height: 0;
+    position: absolute;
+    width: 0;
+    
+    border: 7px solid transparent;
+    border-top-color: grey;
+    
+    top: 100%;
+    left: 50%;
+    margin-left: -7px;
+}
+
+
+/* ///////////////////////// */
+menu {
+    padding: 0;
+    margin: 0;
+}
+
+menu .playpause {
+    position: absolute;
+    left: 0;
+    top: 0;
+    font-size: 12px;
+    margin: 0; padding: 0;
+}
+
+#markers {
+    position: absolute;
+    top: 1em; height: 10px;
+    left: 3em; right: 0;
+    background-color: #e3e3e3;
+}
