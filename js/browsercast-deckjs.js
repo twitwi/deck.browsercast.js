@@ -87,8 +87,6 @@
         });
         setCueLength(slideCues, estimateTotalDuration(popcorn));
 
-        window.onresize = setCueLength;
-
         // lock for preventing slidechanged event handler during timeupdate handler.
         // TODO using a mutex seems clunky.
         var transitionLock = false;
