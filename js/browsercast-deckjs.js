@@ -115,7 +115,20 @@
                 transitionLock = false;
             });
         });
-        setCueLength(slideCues, estimateTotalDuration(popcorn));
+        var trySetCueLengthAndPlay = function(retries, delay) {
+            if (retries <= 0) { return; }
+            var total = estimateTotalDuration(popcorn);
+            if (total > 0) { // it tests also for NaN
+                setCueLength(slideCues, total);
+                // Start the 'cast!
+                audio.play();
+            } else {
+                setTimeout(function() {
+                    trySetCueLengthAndPlay(retries - 1, delay*1.5);
+                }, delay);
+            }
+        }
+        trySetCueLengthAndPlay(20, 10);
 
         // lock for preventing slidechanged event handler during timeupdate handler.
         // TODO using a mutex seems clunky.
@@ -159,9 +172,6 @@
             var timeTxt = timeString(audio.currentTime);
             $('.time-label').css("left", pc+'%').text(timeTxt);
         });
-
-        // Start the 'cast!
-        audio.play();
         
         $document.unbind('keydown.deckbcast').bind('keydown.deckbcast', function(e) {
             //opts.keys.scale || $.inArray(e.which, opts.keys.scale) > -1) {
