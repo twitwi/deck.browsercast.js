@@ -33,16 +33,20 @@
         return slideCues;
     }
 
-    function setCueLength() {
-        var markers, markerLength, divs, slideCues, borderWidth;
-        slideCues = getSlideCues();
+    function estimateTotalDuration(popcorn) {
+        return popcorn.duration();
+    }
+
+    function setCueLength(slideCues, totalDuration) {
+        var markers, markerLength, divs;
         markers = document.getElementById('markers');
-        borderWidth = 2;
-        markerLength = markers.offsetWidth / slideCues.length - borderWidth;
-        divs = document.getElementsByClassName('cue');
-        for (var i = 0; i < divs.length; i++) {
-            divs[i].setAttribute("style","width:" + markerLength + "px");
-        };
+        var from = 0;
+        for (i in slideCues) {
+            var to = i == slideCues.length - 1 ? totalDuration : slideCues[parseInt(i)+1].time;
+            var pc = 100 * (to - from) / totalDuration;
+            from = to;
+            slideCues[i].div.setAttribute("style", "width:" + pc + "%; box-sizing: border-box;");
+        }
     }
 
     function onCueClick(cue, popcorn) {
@@ -81,7 +85,7 @@
                 transitionLock = false;
             });
         });
-        setCueLength();
+        setCueLength(slideCues, estimateTotalDuration(popcorn));
 
         window.onresize = setCueLength;
 
