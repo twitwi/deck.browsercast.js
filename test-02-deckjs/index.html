@@ -18,7 +18,9 @@
           "../lib/js/head.min.js",
           "../js/popcorn.js",
           "../js/browsercast-deckjs.js"
-        ], {})
+        ], {
+            fitMarginY: 30
+        })
     </script>
     <style>
         .deck-container>.slide { padding-top: 50px; }
@@ -144,17 +146,13 @@
           <p>Such browser &mdash; so cast &mdash; very web.</p>
 	  <div data-bccue="108.90" class="slide">
             <p>Thanks for listening.</p>
-	    <div class="row-fluid">
-	      <div class="span2"></div>
-	      <div class="span4" align="center"><img src="tavish.jpg" /></div>
-	      <div class="span4" align="center"><img src="greg.jpg" /></div>
-	      <div class="span2"></div>
+	    <div style="float:left; width: 50%;">
+	      <img src="tavish.jpg" /><br/>
+	      Tavish Armstrong
 	    </div>
-	    <div class="row-fluid" style="padding-bottom:15px">
-	      <div class="span2"></div>
-	      <div class="span4" align="center">Tavish Armstrong</div>
-	      <div class="span4" align="center">Greg Wilson</div>
-	      <div class="span2"></div>
+	    <div style="float:left; width: 50%;">
+	      <img src="greg.jpg" /><br/>
+	      Greg Wilson
 	    </div>
 	    <p>Narrated by Madeleine Wilson</p>
             <p style="font-size: small"><em>With thanks to David Seifried, Jeremy Banks, and David Wolever for work on earlier prototypes.</em></p>
