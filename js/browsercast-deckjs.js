@@ -183,7 +183,15 @@
 
     }
 
-    /* TODO?
+    function leftPad(number, targetLength, padding) {
+        padding = padding || ' ';
+        var output = number + '';
+        while (output.length < targetLength) {
+            output = padding + output;
+        }
+        return output;
+    }
+
     // Start recording a 'cast
     // In the end you can get the slide HTML with the cue attributes set
     // by running:
@@ -192,48 +200,32 @@
     //
     // Press "Left" on the first slide to start recording.
     function recordBrowserCast() {
-        Reveal.navigateTo(0);
-        function CuePointTracker() {
-            this.currentIndex = 0; // assume starting on first slide. not great.
-            this.cuePoints = [];
-            this.addCuePoint = function (ts) {
-                var cp = {
-                    ts: ts,
-                    index: this.currentIndex
-                };
-                this.cuePoints.push(cp);
-                this.currentIndex += 1;
-            };
 
-            this.getStartTS = function () {
-                var first = this.cuePoints[0];
-                return first.ts;
-            };
+        $('audio').attr('controls', 'true');
+        $('menu, #markers').hide();
+        setTimeout(function(){ $.deck('go', 0); logs = [];}, 200);
 
-            this.getHTMLSlides = function () {
-                var slides, src, i, start, slideDiv;
-                start = this.getStartTS();
-                slides = document.getElementsByTagName('section');
-                for (i = 0; i < this.cuePoints.length; i += 1) {
-                    slides[i].attributes['data-bccue'].value = (this.cuePoints[i].ts - start)/1000.0;
+        var $document = $(document);
+        var audio = $('audio').get(0);
+        var logs = []; // as a list of pairs, so we can have multiple values and clean afterwards
+        var exportLogs = function() {
+            var res = '{\n';
+            for (i in logs) {
+                res += leftPad(logs[i].slide, 6) + ':' + leftPad(logs[i].time.toFixed(2), 6) + '\n';
+            }
+            res += '}\n';
+            alert(res);
+        };
 
-                }
-                slideDiv = document.getElementsByClassName('slides')[0];
-                return slideDiv.innerHTML;
-            };
-        }
-
-        var tracker = new CuePointTracker();
-        global.browsercastRecorder = tracker;
-
-        document.addEventListener('keydown', function (event) {
-            if (event.keyIdentifier === 'Left' || event.keyIdentifier === 'Right') {
-                var ts = event.timeStamp;
-                tracker.addCuePoint(ts);
+        $document.bind('deck.change', function(event, from, to) {
+            logs.push({time: audio.currentTime, slide: to});
+        });
+        $document.unbind('keydown.deckbcastrecord').bind('keydown.deckbcastrecord', function(e) {
+            if (e.which === 84) { // 't'
+                exportLogs();
             }
         });
     }
-    */
 
     function unsetKey(which, fromWhat) {
         if ($.isArray(fromWhat)) {
@@ -249,10 +241,14 @@
             }
         }
     }
-    unsetKey(32, $.deck.defaults.keys); // unbind space from "next slide"
 
+    unsetKey(32, $.deck.defaults.keys); // unbind space from "next slide"
     $document.bind('deck.init', function() {
-        playBrowserCast();
+        if (window.timings === undefined) {
+            recordBrowserCast();
+        } else {
+            playBrowserCast();
+        }
     });
 
 })(window, window.document, jQuery, 'deck', this);
