@@ -247,6 +247,12 @@
         if (window.timings === undefined) {
             recordBrowserCast();
         } else {
+            // compat layer before major rewrite
+            for (slide in timings) {
+                // TODO when timings are wrong
+                $.deck('getSlide', parseInt(slide)).attr('data-bccue', timings[slide]);
+            }
+            //
             playBrowserCast();
         }
     });
