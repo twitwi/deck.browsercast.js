@@ -244,16 +244,24 @@
 
     unsetKey(32, $.deck.defaults.keys); // unbind space from "next slide"
     $document.bind('deck.init', function() {
-        if (window.timings === undefined) {
+        var timingDataFile = $('html>head>meta[name="timings"]').attr('content');
+        if (timingDataFile === undefined) {
             recordBrowserCast();
         } else {
-            // compat layer before major rewrite
-            for (slide in timings) {
-                // TODO when timings are wrong
-                $.deck('getSlide', parseInt(slide)).attr('data-bccue', timings[slide]);
-            }
-            //
-            playBrowserCast();
+            $.getJSON(timingDataFile, function(timings) {
+                // TODO: rewrite this compat layer before major rewrite
+                for (slide in timings) {
+                    // TODO when timings are wrong
+                    $.deck('getSlide', parseInt(slide)).attr('data-bccue', timings[slide]);
+                }
+                playBrowserCast();
+            }) .fail(function( jqxhr, textStatus, error ) {
+                var err = textStatus + ", " + error;
+                console.log( "Request Failed: " + err);
+                // TODO: conditional alert as in some other deck extensions
+                alert("Timing file '"+timingDataFile+"' referenced but it was not found or wrong.\nSee console logs for more details.\nBrowsercast replay won't work, falling back to timing recording.");
+                recordBrowserCast();
+            });
         }
     });
 
