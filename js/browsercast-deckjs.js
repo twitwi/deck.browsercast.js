@@ -203,7 +203,7 @@
 
         $('audio').attr('controls', 'true');
         $('menu, #markers').hide();
-        setTimeout(function(){ $.deck('go', 0); logs = [];}, 200);
+        setTimeout(function(){ $.deck('go', 0); logs = [{time:0, slide:0}];}, 200);
 
         var $document = $(document);
         var audio = $('audio').get(0);
