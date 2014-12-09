@@ -211,9 +211,12 @@
         var exportLogs = function() {
             var res = '{\n';
             for (i in logs) {
-                res += leftPad(logs[i].slide, 6) + ':' + leftPad(logs[i].time.toFixed(2), 6) + '\n';
+                if (i != 0) {
+                    res += ',\n';
+                }
+                res += leftPad('"'+logs[i].slide+'"', 8) + ':' + leftPad(logs[i].time.toFixed(2), 6);
             }
-            res += '}\n';
+            res += '\n}\n';
             alert(res);
         };
 
