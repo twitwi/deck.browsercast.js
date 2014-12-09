@@ -400,6 +400,6 @@ menu .playpause {
 #markers {
     position: absolute;
     top: 1em; height: 10px;
-    left: 3em; right: 0;
+    left: 3em; right: 1em;
     background-color: #e3e3e3;
 }
