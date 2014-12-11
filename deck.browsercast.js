@@ -1,4 +1,3 @@
-
 (function (global, document, $, deck, window, undefined) {
 
     var $document = $(document);
@@ -121,7 +120,7 @@
             if (total > 0) { // it tests also for NaN
                 setCueLength(slideCues, total);
                 // Start the 'cast!
-                audio.play();
+                popcorn.play();
             } else {
                 setTimeout(function() {
                     trySetCueLengthAndPlay(retries - 1, delay*1.5);
@@ -155,7 +154,7 @@
             }
 
             // If the slide changed after the 'cast finished, get the audio moving again.
-            audio.play();
+            popcorn.play();
         }));
 
 
