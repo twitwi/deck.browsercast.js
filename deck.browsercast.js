@@ -69,7 +69,7 @@
             var to = i == slideCues.length - 1 ? totalDuration : slideCues[parseInt(i)+1].time;
             var pc = 100 * (to - from) / totalDuration;
             from = to;
-            slideCues[i].div.setAttribute("style", "width:" + pc + "%; box-sizing: border-box;");
+            slideCues[i].div.setAttribute('style', 'width:' + pc + '%; box-sizing: border-box;');
         }
     }
 
@@ -90,7 +90,7 @@
 
         popcorn = Popcorn(audio);
 
-        $(".playpause", bc).click(function() {
+        $('.playpause', bc).click(function() {
             togglePlay(popcorn);
         });
 
@@ -98,7 +98,7 @@
         slideCues.forEach(function (cue) {
             div = document.createElement('div');
             div.className = 'cue';
-            div.setAttribute('data', "time:"+cue.time);
+            div.setAttribute('data', 'time:'+cue.time);
             cue.div = div;
             div.onclick = function(event) {
                         return onCueClick.call(this, cue, popcorn);
@@ -108,9 +108,9 @@
             popcorn.cue(i++, cue.time, function () {
                 transitionLock = true;
                 cue.focus();
-                var active = document.querySelector(".active");
-                if (active != null) active.classList.remove("active");
-                cue.div.classList.add("active");
+                var active = document.querySelector('.active');
+                if (active != null) active.classList.remove('active');
+                cue.div.classList.add('active');
                 transitionLock = false;
             });
         });
@@ -169,7 +169,7 @@
             var estimatedTotal = estimateTotalDuration(popcorn);
             var pc = 100 * audio.currentTime / estimatedTotal;
             var timeTxt = timeString(audio.currentTime);
-            $('.time-label').css("left", pc+'%').text(timeTxt);
+            $('.time-label').css('left', pc+'%').text(timeTxt);
         });
         
         $document.unbind('keydown.deckbcast').bind('keydown.deckbcast', function(e) {
@@ -197,7 +197,7 @@
     //        browsercastRecorder.getHTMLSlides()
     // in the Javascript console.
     //
-    // Press "Left" on the first slide to start recording.
+    // Press 'Left' on the first slide to start recording.
     function recordBrowserCast() {
 
         $('audio').attr('controls', 'true');
@@ -244,7 +244,7 @@
         }
     }
 
-    unsetKey(32, $.deck.defaults.keys); // unbind space from "next slide"
+    unsetKey(32, $.deck.defaults.keys); // unbind space from 'next slide'
     $document.bind('deck.init', function() {
         var timingDataFile = $('html>head>meta[name="timings"]').attr('content');
         if (timingDataFile === undefined) {
@@ -258,10 +258,12 @@
                 }
                 playBrowserCast();
             }) .fail(function( jqxhr, textStatus, error ) {
-                var err = textStatus + ", " + error;
-                console.log( "Request Failed: " + err);
+                var err = textStatus + ', ' + error;
+                console.log('Request Failed: ' + err);
                 // TODO: conditional alert as in some other deck extensions
-                alert("Timing file '"+timingDataFile+"' referenced but it was not found or wrong.\nSee console logs for more details.\nBrowsercast replay won't work, falling back to timing recording.");
+                alert('Timing file "' + timingDataFile + '" referenced but it was not found or wrong.\n' +
+                      'See console logs for more details.\n' +
+                      "Browsercast replay won't work, falling back to timing recording.");
                 recordBrowserCast();
             });
         }
