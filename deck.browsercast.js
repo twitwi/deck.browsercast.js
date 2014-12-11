@@ -1,5 +1,26 @@
 (function (global, document, $, deck, window, undefined) {
 
+
+    function maybeAddSnippet(audioDataFile, options, andThen) {
+        if (options.snippets.browsercast) {
+            if ($(options.selectors.browsercast).size() > 0 && options.alert.goto) {
+                alert("'options.snippets.browsercast' is true but a "+options.selectors.browsercast+" has been found."
+                      +"\nThis might cause interaction glitches."
+                      +"\n"
+                      +"\nSuggestion: remove your html snippet or pass the {snippets: {browsercast: false}} option."
+                     );
+            }
+            var ext = audioDataFile.replace(/.*[.]([^.]*)/, '$1');
+            $('<div/>').addClass('browsercast')
+                .append($('<audio/>').addClass("browsercast-audio")
+                        .append($('<source/>').attr('src', audioDataFile).attr('type', 'audio/'+ext)))
+                .append($('<menu/>').append($('<button/>').addClass('playpause')))
+                .append($('<div/>').addClass('browsercast-markers')
+                        .append($('<div/>').addClass('browsercast-time-label').text('1:00')))
+                .appendTo($.deck('getContainer'));
+        }
+    }
+
     var $document = $(document);
 
     function togglePlay(popcorn) {
@@ -226,7 +247,7 @@
         if (audioDataFile === undefined) {
             return;
         }
-        //maybeAddSnippet(audioDataFile);
+        maybeAddSnippet(audioDataFile, options);
         var timingDataFile = $('html>head>meta[name="timings"]').attr('content');
         if (timingDataFile === undefined) {
             recordBrowserCast(options);
