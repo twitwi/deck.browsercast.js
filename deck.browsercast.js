@@ -2,40 +2,6 @@
 
     var $document = $(document);
 
-    function SlideCue(time, slideIndex) {
-        this.time = time;
-        this.slideIndex = slideIndex;
-    }
-
-    SlideCue.prototype = {
-        focus: function () {
-            $.deck('go', this.slideIndex);
-        }
-    };
-
-    function parseCueTime(tag) {
-        return parseFloat($(tag).attr('data-bccue'));
-    }
-
-    function getSlideCues() {
-        var slides, slideCues, cue, cueTime, subCues;
-        // Get a list of the slides and their cue tnimes.
-        slides = $.deck('getSlides');
-        slideCues = [];
-        for (i = 0; i < slides.length; i += 1) {
-            if (typeof slides[i].attr('data-bccue') !== 'undefined') {
-                cueTime = parseCueTime(slides[i]);
-                cue = new SlideCue(cueTime, i);
-                slideCues.push(cue);
-            }
-        }
-        return slideCues;
-    }
-
-    function estimateTotalDuration(popcorn) {
-        return popcorn.duration();
-    }
-
     function togglePlay(popcorn) {
         if (popcorn.paused() === true) {
             popcorn.play()
@@ -61,64 +27,65 @@
         }
     }
 
-    function setCueLength(slideCues, totalDuration) {
-        var markers, markerLength, divs;
-        markers = document.getElementById('markers');
-        var from = 0;
-        for (i in slideCues) {
-            var to = i == slideCues.length - 1 ? totalDuration : slideCues[parseInt(i)+1].time;
-            var pc = 100 * (to - from) / totalDuration;
-            from = to;
-            slideCues[i].div.setAttribute('style', 'width:' + pc + '%; box-sizing: border-box;');
-        }
-    }
-
     function onCueClick(cue, popcorn) {
        popcorn.currentTime(cue.time);
     }
 
     // Use the audio timeupdates to drive existing slides.
-    function playBrowserCast() {
-        var audio, slideCues, popcorn, markers, div, bc;
+    function playBrowserCast(timings) {
+        var audio, popcorn, markers, bc;
+        var divs = {};
+        var nTimings = Object.keys(timings).length;
+        var defaultWidth = (100./nTimings)+'%';
 
-        slideCues = getSlideCues();
+        var forEachTiming = function(f) {
+            Object.keys(timings)
+                .sort(function(a, b) {return a - b;})
+                .forEach(f);
+        };
+
         bc = document.getElementById('browsercast');
-
-        // Look for the browsercast audio element.
         audio = document.getElementById('browsercast-audio');
         markers = document.getElementById('markers');
-
         popcorn = Popcorn(audio);
 
         $('.playpause', bc).click(function() {
             togglePlay(popcorn);
         });
 
-        var i = 0;
-        slideCues.forEach(function (cue) {
-            div = document.createElement('div');
+        forEachTiming(function(k, i) {
+            var div = document.createElement('div');
             div.className = 'cue';
-            div.setAttribute('data', 'time:'+cue.time);
-            cue.div = div;
             div.onclick = function(event) {
-                        return onCueClick.call(this, cue, popcorn);
-                    };
+                popcorn.currentTime(timings[k]);
+            };
+            $(div)
+                .css('width', defaultWidth)
+                .css('box-sizing', 'border-box');
             markers.appendChild(div);
-
-            popcorn.cue(i++, cue.time, function () {
+            divs[k] = div;
+            popcorn.cue(k, timings[k], function () {
                 transitionLock = true;
-                cue.focus();
-                var active = document.querySelector('.active');
-                if (active != null) active.classList.remove('active');
-                cue.div.classList.add('active');
+                $.deck('go', parseInt(k));
+                $('.active', markers).removeClass('active');
+                div.classList.add('active');
                 transitionLock = false;
             });
         });
         var trySetCueLengthAndPlay = function(retries, delay) {
             if (retries <= 0) { return; }
-            var total = estimateTotalDuration(popcorn);
-            if (total > 0) { // it tests also for NaN
-                setCueLength(slideCues, total);
+            var totalDuration = popcorn.duration();
+            if (totalDuration > 0) { // it tests also for NaN
+                var kPrev;
+                forEachTiming(function(k, i) {
+                    if (i != 0) {
+                        var pc = 100 * (timings[k] - timings[kPrev]) / totalDuration;
+                        $(divs[kPrev]).css('width', pc+'%');
+                    }
+                    kPrev = k;
+                });
+                var pc = 100 * (totalDuration - timings[kPrev]) / totalDuration;
+                $(divs[kPrev]).css('width', pc+'%');
                 // Start the 'cast!
                 popcorn.play();
             } else {
@@ -144,16 +111,7 @@
         };
 
         $document.bind('deck.change', ifNotLocked(function (event, from, to) {
-            var cueTimeRaw, cueTime, newSlide, i, frags;
-
-            // Extract the desired audio time from the target slide and seek to that time.
-            newSlide = $.deck('getSlide', to); //Reveal.getSlide(indexh);
-            if (typeof newSlide.attr('data-bccue') !== 'undefined') {
-                cueTime = parseCueTime(newSlide);
-                popcorn.currentTime(cueTime);
-            }
-
-            // If the slide changed after the 'cast finished, get the audio moving again.
+            popcorn.currentTime(timings[to.toString()]);
             popcorn.play();
         }));
 
@@ -166,7 +124,7 @@
         audio.addEventListener('pause', updatePlayPause);
         audio.addEventListener('playing', updatePlayPause);
         audio.addEventListener('timeupdate', function () {
-            var estimatedTotal = estimateTotalDuration(popcorn);
+            var estimatedTotal = popcorn.duration();
             var pc = 100 * audio.currentTime / estimatedTotal;
             var timeTxt = timeString(audio.currentTime);
             $('.time-label').css('left', pc+'%').text(timeTxt);
@@ -220,6 +178,7 @@
         };
 
         $document.bind('deck.change', function(event, from, to) {
+            console.log(from,to);
             logs.push({time: audio.currentTime, slide: to});
         });
         $document.unbind('keydown.deckbcastrecord').bind('keydown.deckbcastrecord', function(e) {
@@ -251,12 +210,7 @@
             recordBrowserCast();
         } else {
             $.getJSON(timingDataFile, function(timings) {
-                // TODO: rewrite this compat layer before major rewrite
-                for (slide in timings) {
-                    // TODO when timings are wrong
-                    $.deck('getSlide', parseInt(slide)).attr('data-bccue', timings[slide]);
-                }
-                playBrowserCast();
+                playBrowserCast(timings);
             }) .fail(function( jqxhr, textStatus, error ) {
                 var err = textStatus + ', ' + error;
                 console.log('Request Failed: ' + err);
