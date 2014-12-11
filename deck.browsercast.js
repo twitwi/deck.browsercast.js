@@ -1,4 +1,4 @@
-// Sketch of browsercast / revealjs integration.
+
 (function (global, document, $, deck, window, undefined) {
 
     var $document = $(document);
