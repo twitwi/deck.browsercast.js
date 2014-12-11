@@ -27,12 +27,8 @@
         }
     }
 
-    function onCueClick(cue, popcorn) {
-       popcorn.currentTime(cue.time);
-    }
-
     // Use the audio timeupdates to drive existing slides.
-    function playBrowserCast(timings) {
+    function playBrowserCast(timings, options) {
         var audio, popcorn, markers, bc;
         var divs = {};
         var nTimings = Object.keys(timings).length;
@@ -44,9 +40,9 @@
                 .forEach(f);
         };
 
-        bc = document.getElementById('browsercast');
-        audio = document.getElementById('browsercast-audio');
-        markers = document.getElementById('markers');
+        bc = $(options.selectors.browsercast).get(0);
+        audio = $(options.selectors.browsercastAudio).get(0);
+        markers = $(options.selectors.browsercastMarkers).get(0);
         popcorn = Popcorn(audio);
 
         $('.playpause', bc).click(function() {
@@ -55,7 +51,7 @@
 
         forEachTiming(function(k, i) {
             var div = document.createElement('div');
-            div.className = 'cue';
+            div.className = 'browsercast-cue';
             div.onclick = function(event) {
                 popcorn.currentTime(timings[k]);
             };
@@ -68,7 +64,7 @@
                 transitionLock = true;
                 $.deck('go', parseInt(k));
                 $('.active', markers).removeClass('active');
-                div.classList.add('active');
+                $(div).addClass('active');
                 transitionLock = false;
             });
         });
@@ -127,7 +123,7 @@
             var estimatedTotal = popcorn.duration();
             var pc = 100 * audio.currentTime / estimatedTotal;
             var timeTxt = timeString(audio.currentTime);
-            $('.time-label').css('left', pc+'%').text(timeTxt);
+            $(options.selectors.browsercastTimeLabel).css('left', pc+'%').text(timeTxt);
         });
         
         $document.unbind('keydown.deckbcast').bind('keydown.deckbcast', function(e) {
@@ -156,14 +152,15 @@
     // in the Javascript console.
     //
     // Press 'Left' on the first slide to start recording.
-    function recordBrowserCast() {
+    function recordBrowserCast(options) {
 
-        $('audio').attr('controls', 'true');
-        $('menu, #markers').hide();
+        var bc = $(options.selectors.browsercast);
+        $(options.selectors.browsercastAudio).attr('controls', 'true');
+        $(options.selectors.browsercastMarkers).hide();
         setTimeout(function(){ $.deck('go', 0); logs = [{time:0, slide:0}];}, 200);
 
         var $document = $(document);
-        var audio = $('audio').get(0);
+        var audio = $(options.selectors.browsercastAudio).get(0);
         var logs = []; // as a list of pairs, so we can have multiple values and clean afterwards
         var exportLogs = function() {
             var res = '{\n';
@@ -178,7 +175,6 @@
         };
 
         $document.bind('deck.change', function(event, from, to) {
-            console.log(from,to);
             logs.push({time: audio.currentTime, slide: to});
         });
         $document.unbind('keydown.deckbcastrecord').bind('keydown.deckbcastrecord', function(e) {
@@ -203,21 +199,48 @@
         }
     }
 
+
+    $.extend(true, $.deck.defaults, {
+        selectors: {
+            browsercast: '.browsercast',
+            browsercastAudio: '.browsercast-audio',
+            browsercastMarkers: '.browsercast-markers',
+            browsercastTimeLabel: '.browsercast-time-label'
+        },
+        
+        snippets: {
+            browsercast: true,
+            browsercastAlways: false
+        },
+        
+        alert: {
+            browsercast: true
+        }
+    });
+
+
     unsetKey(32, $.deck.defaults.keys); // unbind space from 'next slide'
     $document.bind('deck.init', function() {
+        var options = $.deck('getOptions');
+        var audioDataFile = $('html>head>meta[name="audio"]').attr('content');
+        if (audioDataFile === undefined) {
+            return;
+        }
+        //maybeAddSnippet(audioDataFile);
         var timingDataFile = $('html>head>meta[name="timings"]').attr('content');
         if (timingDataFile === undefined) {
-            recordBrowserCast();
+            recordBrowserCast(options);
         } else {
             $.getJSON(timingDataFile, function(timings) {
-                playBrowserCast(timings);
-            }) .fail(function( jqxhr, textStatus, error ) {
+                playBrowserCast(timings, options);
+            }).fail(function( jqxhr, textStatus, error ) {
                 var err = textStatus + ', ' + error;
-                console.log('Request Failed: ' + err);
-                // TODO: conditional alert as in some other deck extensions
-                alert('Timing file "' + timingDataFile + '" referenced but it was not found or wrong.\n' +
-                      'See console logs for more details.\n' +
-                      "Browsercast replay won't work, falling back to timing recording.");
+                console.log('[Browsercast] Request Failed: ' + err);
+                if (options.alert.browsercast) {
+                    alert('Timing file "' + timingDataFile + '" referenced but it was not found or wrong.\n' +
+                          'See console logs for more details.\n' +
+                          "Browsercast replay won't work, falling back to timing recording.");
+                }
                 recordBrowserCast();
             });
         }

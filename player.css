@@ -348,7 +348,7 @@ body {
 /* ///////////////////////////////// */
 
 
-.time-label {
+.browsercast-time-label {
     z-index: 1;
     background-color: grey;
     font-family: lato;
@@ -368,7 +368,7 @@ body {
     top: -17px;
     transform: translate(-50%, 0) translate(-3px, 0);
 }
-.time-label:after {
+.browsercast-time-label:after {
     content: ' ';
     height: 0;
     position: absolute;
@@ -397,7 +397,7 @@ menu .playpause {
     margin: 0; padding: 0;
 }
 
-#markers {
+.browsercast-markers {
     position: absolute;
     top: 1em; height: 10px;
     left: 3em; right: 1em;
