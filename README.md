@@ -46,10 +46,11 @@ There are two alternatives.
 
 ### Include it
 
-Have a look at the demo (master branch), the extension is made of three files:
+Have a look at the demo (master branch), the extension is made of four files:
 - "browsercast/popcorn.js",
 - "browsercast/deck.browsercast.js",
 - "browsercast/deck.browsercast.css",
+- "browsercast/player.css",
 
 ### Use/build a deck.js pack that contains it
 
