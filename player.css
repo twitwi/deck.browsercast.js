@@ -348,7 +348,7 @@ body {
 /* ///////////////////////////////// */
 
 
-.browsercast-time-label {
+.browsercast-time-label, .browsercast-total-time-label {
     z-index: 1;
     background-color: grey;
     font-family: lato;
@@ -356,13 +356,18 @@ body {
     text-shadow: #555 1px 1px 1px;
     padding: 0 5px;
     border-radius: 2px;
-    /*
-      height: 100px;
-      width: 100px;
-      */
     font-size: 10px;
     display: inline-block;
     position: absolute;
+}
+.browsercast-total-time-label {
+    right: 0%;
+    bottom: -17px;
+    background-color: #333;
+    transform: translate(50%, 0) translate(-3px, 0);
+}
+.browsercast-time-label {
+    z-index: 2;
     left: 0%;
     transition: left 200ms linear;
     bottom: -17px;

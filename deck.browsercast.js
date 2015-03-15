@@ -16,7 +16,8 @@
                         .append($('<source/>').attr('src', audioDataFile).attr('type', 'audio/'+ext)))
                 .append($('<menu/>').append($('<button/>').addClass('playpause')))
                 .append($('<div/>').addClass('browsercast-markers')
-                        .append($('<div/>').addClass('browsercast-time-label').text('1:00')))
+                        .append($('<div/>').addClass('browsercast-time-label').text('1:00'))
+                        .append($('<div/>').addClass('browsercast-total-time-label').text('9:99')))
                 .appendTo($.deck('getContainer'));
         }
     }
@@ -150,7 +151,9 @@
             var estimatedTotal = popcorn.duration();
             var pc = 100 * audio.currentTime / estimatedTotal;
             var timeTxt = timeString(audio.currentTime);
+            var totalTimeTxt = timeString(estimatedTotal);
             $(options.selectors.browsercastTimeLabel).css('left', pc+'%').text(timeTxt);
+            $(options.selectors.browsercastTotalTimeLabel).text(totalTimeTxt);
         });
         
         $document.unbind('keydown.deckbcast').bind('keydown.deckbcast', function(e) {
@@ -234,7 +237,8 @@
             browsercast: '.browsercast',
             browsercastAudio: '.browsercast-audio',
             browsercastMarkers: '.browsercast-markers',
-            browsercastTimeLabel: '.browsercast-time-label'
+            browsercastTimeLabel: '.browsercast-time-label',
+            browsercastTotalTimeLabel: '.browsercast-total-time-label'
         },
         
         snippets: {
