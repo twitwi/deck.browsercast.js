@@ -365,19 +365,19 @@ body {
     position: absolute;
     left: 0%;
     transition: left 200ms linear;
-    top: -17px;
+    bottom: -17px;
     transform: translate(-50%, 0) translate(-3px, 0);
 }
 .browsercast-time-label:after {
     content: ' ';
-    height: 0;
+    height: 0; 
     position: absolute;
     width: 0;
     
-    border: 7px solid transparent;
-    border-top-color: grey;
+    border: 8px solid transparent;
+    border-bottom-color: grey;
     
-    top: 100%;
+    bottom: 100%;
     left: 50%;
     margin-left: -7px;
 }
@@ -399,7 +399,7 @@ menu .playpause {
 
 .browsercast-markers {
     position: absolute;
-    top: 1em; height: 10px;
+    top: 0; height: 10px;
     left: 3em; right: 1em;
     background-color: #e3e3e3;
 }
