@@ -252,13 +252,13 @@
     });
 
 
-    unsetKey(32, $.deck.defaults.keys); // unbind space from 'next slide'
     $document.bind('deck.init', function() {
         var options = $.deck('getOptions');
         var audioDataFile = $('html>head>meta[name="audio"]').attr('content');
         if (audioDataFile === undefined) {
             return;
         }
+        unsetKey(32, options.keys); // unbind space from 'next slide'
         maybeAddSnippet(audioDataFile, options);
         var timingDataFile = $('html>head>meta[name="timings"]').attr('content');
         if (timingDataFile === undefined) {
