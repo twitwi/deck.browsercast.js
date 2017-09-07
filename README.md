@@ -4,7 +4,7 @@ deck.browsercast.js
 Browsercast extension for deck.js.
 It replays an audio soundtrack synchronized with a deck.js slide deck.
 
-See an example "[a introduction to software carpentry](swcarpentry.github.io/slideshows/introducing-software-carpentry/)" and also [the demo repository](https://github.com/twitwi/deck.browsercast.js-demo). 
+See an example "[Introducing Software Carpentry](http://swcarpentry.github.io/slideshows/introducing-software-carpentry/)" and also [the demo repository](https://github.com/twitwi/deck.browsercast.js-demo).
 
 ## Playing an existing browsercast presentation
 
